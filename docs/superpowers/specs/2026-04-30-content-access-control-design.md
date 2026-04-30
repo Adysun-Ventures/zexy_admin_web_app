@@ -198,15 +198,7 @@ def check_content_access(db, fan_uid, content) -> bool:
 
 ### 8. Fan App UI Changes
 
-**Content card (locked post):**
-- Show blurred `preview_url` as background
-- Overlay: lock icon + "Members Only" + "Upgrade to [Plan Name]" button
-- No `url` field in response for inaccessible content
-
-**Content detail (authorized):**
-- Call `GET /api/v1/fan/content/{id}/signed-url` first
-- Use returned URL for `<Image>` or `<Video>` component
-- Re-fetch signed URL if expired (on load error)
+> **Out of scope for this implementation** — fan app codebase not yet started. Fan-facing endpoints (signed-url, content list with preview_url) are built on the API side and ready for fan app integration later.
 
 ---
 
