@@ -22,6 +22,8 @@ This spec covers the foundation: project scaffold, auth flow, and three core pag
 | Language | TypeScript | Matches all existing repos |
 | Styling | Tailwind CSS v4 | Matches `zexy_website` |
 | UI Components | Shadcn UI | README-specified, pairs with Next.js + Tailwind |
+| Icons | Lucide React | Used throughout `zexy_website`; web-compatible (creator app uses Ionicons which is React Native only) |
+| Fonts | Manrope + Inter (Google Fonts) | Matches creator app exactly: Manrope = headlines/display, Inter = body/label |
 | Data Tables | TanStack Table v8 | README-specified, same TanStack ecosystem as creator app (TanStack Query v5) |
 | Charts | Recharts | README-specified, lightweight |
 | HTTP Client | Axios | Matches creator app pattern exactly — reuse interceptor structure |
@@ -40,7 +42,39 @@ This spec covers the foundation: project scaffold, auth flow, and three core pag
 - Accent: `#e879f9`
 - Success: `#22c55e` | Warning: `#f97316` | Danger: `#ef4444`
 
-### 3.2 Layout Shell
+### 3.2 Typography
+- **Headline / Display**: `Manrope` (weights: 700, 800, 900) — page titles, stat numbers, logo wordmark
+- **Body / Label**: `Inter` (weights: 400, 500, 600) — table content, descriptions, badges
+- Load via Google Fonts in `app/layout.tsx` (same pattern as `zexy_website`)
+
+```html
+<!-- In <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+```
+
+Tailwind font config:
+```js
+fontFamily: {
+  headline: ['Manrope', 'sans-serif'],
+  body: ['Inter', 'sans-serif'],
+}
+```
+
+### 3.3 Icons
+- **Library**: `lucide-react` (already used in `zexy_website`)
+- **Usage**: All sidebar icons, action buttons, status indicators, form icons
+- Key icons: `LayoutDashboard`, `Users`, `Wallet`, `Settings`, `LogOut`, `ChevronRight`, `Check`, `X`, `AlertTriangle`, `Search`
+
+### 3.4 Logo Component (`ZexyLogo`)
+Web equivalent of creator app's `ZexyLogo.tsx`:
+```tsx
+// src/components/common/ZexyLogo.tsx
+// Props: size ('sm' | 'md' | 'lg'), showText (boolean)
+// Renders: <img src="/zexy_logo_nobg.png" /> + optional "ZEXY" wordmark in Manrope
+// Logo asset: copy zexy_logo_nobg.png to public/zexy_logo_nobg.png
+```
+
+### 3.5 Layout Shell
 - **Icon sidebar** (collapsed by default, 40px wide)
   - Icons only at rest; hover/click expands to 200px with labels
   - Active item: `#1e1e2e` background + `#a855f7` border
@@ -48,7 +82,22 @@ This spec covers the foundation: project scaffold, auth flow, and three core pag
 - **Main content area** fills remaining width
 - **Top bar** per page: page title + contextual actions (search, date, alerts)
 
-### 3.3 Navigation Items (MVP)
+### 3.6 Reusable Component Contracts
+
+All shared components live in `src/components/common/`. Each has a single clear purpose:
+
+| Component | Props | Purpose |
+|---|---|---|
+| `ZexyLogo` | `size`, `showText` | Brand logo + wordmark |
+| `StatusBadge` | `status: 'active'\|'inactive'\|'pending'\|'approved'\|'rejected'` | Colored pill badge |
+| `ConfirmModal` | `title`, `description`, `confirmLabel`, `confirmVariant`, `onConfirm`, `onCancel`, `isLoading` | Reusable confirm dialog |
+| `DataTable` | `columns`, `data`, `isLoading` | TanStack Table wrapper with loading state |
+| `Pagination` | `page`, `totalPages`, `onPageChange` | Prev/Next + "Page X of Y" |
+| `TabFilters` | `tabs: {label, value, count}[]`, `active`, `onChange` | Styled tab row |
+| `PageShell` | `children` | Sidebar + main content layout wrapper |
+| `StatCard` | `label`, `value`, `change`, `changeDirection` | Dashboard metric card |
+
+### 3.7 Navigation Items (MVP)
 ```
 ⊞  Dashboard    /dashboard
 👥  Users        /users
