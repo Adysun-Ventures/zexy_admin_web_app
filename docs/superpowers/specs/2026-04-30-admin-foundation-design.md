@@ -90,7 +90,7 @@ All shared components live in `src/components/common/`. Each has a single clear 
 |---|---|---|
 | `ZexyLogo` | `size`, `showText` | Brand logo + wordmark |
 | `StatusBadge` | `status: 'active'\|'inactive'\|'pending'\|'approved'\|'rejected'` | Colored pill badge |
-| `ConfirmModal` | `title`, `description`, `confirmLabel`, `confirmVariant`, `onConfirm`, `onCancel`, `isLoading` | Reusable confirm dialog |
+| `ConfirmModal` | `title`, `description`, `confirmLabel`, `variant: 'danger'\|'success'\|'default'`, `onConfirm`, `onCancel`, `isLoading` | Reusable confirm dialog — `variant` drives button color + header icon automatically: `danger`→red+AlertTriangle, `success`→green+CheckCircle, `default`→purple+Info |
 | `DataTable` | `columns`, `data`, `isLoading` | TanStack Table wrapper with loading state |
 | `Pagination` | `page`, `totalPages`, `onPageChange` | Prev/Next + "Page X of Y" |
 | `TabFilters` | `tabs: {label, value, count}[]`, `active`, `onChange` | Styled tab row |
