@@ -1,0 +1,88 @@
+<h2>Admin App — Overall Layout</h2>
+<p class="subtitle">Which navigation structure fits best for the Zexy admin dashboard?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="sidebar" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;padding:12px;border-radius:6px;font-family:monospace;font-size:11px;color:#888;min-height:160px;display:flex;gap:8px;">
+      <div style="width:120px;background:#1a1a1a;border-radius:4px;padding:8px;flex-shrink:0;">
+        <div style="color:#e879f9;font-weight:bold;margin-bottom:12px;font-size:12px;">⚡ ZEXY</div>
+        <div style="color:#a855f7;margin-bottom:6px;font-size:10px;">● Dashboard</div>
+        <div style="color:#555;margin-bottom:6px;font-size:10px;">○ Users</div>
+        <div style="color:#555;margin-bottom:6px;font-size:10px;">○ Content</div>
+        <div style="color:#555;margin-bottom:6px;font-size:10px;">○ Payouts</div>
+        <div style="color:#555;margin-bottom:6px;font-size:10px;">○ Analytics</div>
+        <div style="color:#555;font-size:10px;">○ Settings</div>
+      </div>
+      <div style="flex:1;background:#111;border-radius:4px;padding:8px;">
+        <div style="background:#1e1e1e;height:24px;border-radius:3px;margin-bottom:8px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+        </div>
+        <div style="background:#1e1e1e;height:50px;border-radius:3px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Fixed Sidebar</h3>
+      <p>Persistent left nav, content fills right. Standard admin pattern. Fast switching between sections. Sidebar collapses to icons on smaller screens.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="topnav" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;padding:12px;border-radius:6px;font-family:monospace;font-size:11px;color:#888;min-height:160px;">
+      <div style="background:#1a1a1a;border-radius:4px;padding:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+        <div style="color:#e879f9;font-weight:bold;font-size:12px;">⚡ ZEXY</div>
+        <div style="color:#a855f7;font-size:10px;">Dashboard</div>
+        <div style="color:#555;font-size:10px;">Users</div>
+        <div style="color:#555;font-size:10px;">Content</div>
+        <div style="color:#555;font-size:10px;">Payouts</div>
+        <div style="color:#555;font-size:10px;">Analytics</div>
+        <div style="margin-left:auto;color:#555;font-size:10px;">Admin ▾</div>
+      </div>
+      <div style="background:#111;border-radius:4px;padding:8px;">
+        <div style="background:#1e1e1e;height:24px;border-radius:3px;margin-bottom:8px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+        </div>
+        <div style="background:#1e1e1e;height:50px;border-radius:3px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Top Navigation</h3>
+      <p>Horizontal nav bar at top. More horizontal space for content. Works well for fewer sections. Less common for data-heavy admin tools.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="sidebar-collapsible" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f0f;padding:12px;border-radius:6px;font-family:monospace;font-size:11px;color:#888;min-height:160px;display:flex;gap:8px;">
+      <div style="width:36px;background:#1a1a1a;border-radius:4px;padding:8px 4px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div style="color:#e879f9;font-size:14px;">⚡</div>
+        <div style="color:#a855f7;font-size:14px;">⊞</div>
+        <div style="color:#555;font-size:14px;">👥</div>
+        <div style="color:#555;font-size:14px;">📄</div>
+        <div style="color:#555;font-size:14px;">💰</div>
+        <div style="color:#555;font-size:14px;">📊</div>
+      </div>
+      <div style="flex:1;background:#111;border-radius:4px;padding:8px;">
+        <div style="background:#1e1e1e;height:24px;border-radius:3px;margin-bottom:8px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+          <div style="background:#1e1e1e;height:40px;border-radius:3px;"></div>
+        </div>
+        <div style="background:#1e1e1e;height:50px;border-radius:3px;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Icon Sidebar (collapsed by default)</h3>
+      <p>Slim icon-only sidebar by default, expands on hover/click. Maximizes content area. Good for power users who know the nav. Hover tooltip shows label.</p>
+    </div>
+  </div>
+
+</div>
