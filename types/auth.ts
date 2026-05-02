@@ -16,7 +16,7 @@ export interface OTPVerifyRequest {
 
 export interface OTPVerifyResponse {
   success: boolean;
-i  data: {
+  data: {
     access_token: string;
     refresh_token: string;
     session_token: string;
