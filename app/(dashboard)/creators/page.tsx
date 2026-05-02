@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, UserPlus, Trash2, RefreshCw, MoreVertical } from 'lucide-react';
+import { Search, UserPlus, Trash2, RefreshCw, Eye, Edit, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,13 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { usersApi, User, UserStats } from '@/lib/api/users';
 import { toast } from 'sonner';
 
@@ -30,6 +25,8 @@ export default function CreatorsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [creatorToDelete, setCreatorToDelete] = useState<number | null>(null);
   const limit = 20;
 
   const fetchCreators = async () => {
@@ -71,16 +68,24 @@ export default function CreatorsPage() {
     fetchCreators();
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this creator?')) return;
+  const handleDeleteClick = (id: number) => {
+    setCreatorToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!creatorToDelete) return;
 
     try {
-      await usersApi.deleteCreator(id);
+      await usersApi.deleteCreator(creatorToDelete);
       toast.success('Creator deleted successfully');
       fetchCreators();
       fetchStats();
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Failed to delete creator');
+    } finally {
+      setDeleteDialogOpen(false);
+      setCreatorToDelete(null);
     }
   };
 
@@ -212,24 +217,33 @@ export default function CreatorsPage() {
                       </TableCell>
                       <TableCell>{formatDate(creator.last_login_at)}</TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red-600"
-                              onClick={() => handleDelete(creator.id)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Delete"
+                            onClick={() => handleDeleteClick(creator.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -264,6 +278,18 @@ export default function CreatorsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Creator"
+        description="Are you sure you want to delete this creator? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   );
 }

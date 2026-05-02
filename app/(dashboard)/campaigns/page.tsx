@@ -88,7 +88,6 @@ export default function CampaignsPage() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
               <Zap className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-medium text-primary">Campaign Manager</span>
             </div>
             <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
               Campaigns

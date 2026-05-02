@@ -25,7 +25,6 @@ export function Sidebar() {
           <Logo size="sm" />
           <div>
             <h2 className="font-bold text-lg">Zexy Admin</h2>
-            <p className="text-xs text-muted-foreground">Campaign Manager</p>
           </div>
         </div>
       </div>
