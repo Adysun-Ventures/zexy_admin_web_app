@@ -88,11 +88,17 @@ export default function FansPage() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Never';
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return 'Never';
+    }
   };
 
   return (
