@@ -30,6 +30,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 // ✅ GOOD - Safe with default value
 {(campaign.recipientsCount || 0).toLocaleString()}
+
+// ❌ BAD - Will crash if date is null/undefined/invalid
+{format(new Date(campaign.createdAt), 'MMM d, yyyy')}
+
+// ✅ GOOD - Safe date formatting with validation
+const formatDate = (dateString: string | null | undefined, formatStr: string, fallback = 'N/A') => {
+  if (!dateString) return fallback;
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return fallback;
+    return format(date, formatStr);
+  } catch {
+    return fallback;
+  }
+};
+{formatDate(campaign.createdAt, 'MMM d, yyyy')}
 ```
 
 ---
@@ -146,6 +162,7 @@ Before pushing ANY code to production:
 | Error Pattern | Root Cause | Solution |
 |--------------|------------|----------|
 | `Cannot read properties of undefined` | Null/undefined value calling method | Add null checks: `(value || default)` |
+| `Invalid time value` / `RangeError` with dates | Invalid/null date string passed to Date constructor | Validate date strings, use safe formatter helper |
 | `Property does not exist on type` | Missing dependency or wrong import | Install package, check imports |
 | `404 for /env.js` | Build script not generating file | Update build script to generate file |
 | `Type error: Property 'asChild' does not exist` | Using component without proper package | Install correct Radix UI package |
@@ -154,6 +171,12 @@ Before pushing ANY code to production:
 ---
 
 ## Lessons Learned Log
+
+### 2025-05-03: Safe Date Formatting
+- **Issue**: `RangeError: Invalid time value` when formatting dates with `date-fns`
+- **Root Cause**: API returns null/undefined/invalid date strings, but code calls `new Date()` without validation
+- **Fix**: Created `formatDate()` helper that validates dates before formatting, returns fallback for invalid dates
+- **Prevention**: Always validate date strings before creating Date objects, use helper functions for date formatting
 
 ### 2025-05-03: Null Safety in Campaigns
 - **Issue**: `recipientsCount.toLocaleString()` crashed when value was null
