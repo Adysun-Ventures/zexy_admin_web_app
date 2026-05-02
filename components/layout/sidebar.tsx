@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Megaphone, Users, Settings, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Megaphone, Users, Settings, BarChart3, Video, Heart } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Campaigns', href: '/campaigns', icon: Megaphone },
-  { name: 'Users', href: '/users', icon: Users },
+  { name: 'Creators', href: '/creators', icon: Video },
+  { name: 'Fans', href: '/fans', icon: Heart },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
