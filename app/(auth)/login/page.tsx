@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Logo } from '@/components/logo';
 import { authApi } from '@/lib/api/auth';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { toast } from 'sonner';
@@ -13,8 +15,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LoginPage() {
   const [step, setStep] = useState<'contact' | 'otp'>('contact');
-  const [contactType, setContactType] = useState<'email' | 'mobile'>('email');
-  const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,18 +39,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Validate Indian mobile number if mobile type is selected
-      if (contactType === 'mobile') {
-        const mobileRegex = /^[6-9]\d{9}$/;
-        if (!mobileRegex.test(mobile)) {
-          toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
-          setIsLoading(false);
-          return;
-        }
+      // Validate Indian mobile number
+      const mobileRegex = /^[6-9]\d{9}$/;
+      if (!mobileRegex.test(mobile)) {
+        toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+        setIsLoading(false);
+        return;
       }
 
-      const payload = contactType === 'email' ? { email } : { mobile };
-      const response = await authApi.sendOTP(payload);
+      const response = await authApi.sendOTP({ mobile });
       if (response.success) {
         toast.success('OTP sent successfully!');
         setStep('otp');
@@ -98,15 +95,11 @@ export default function LoginPage() {
 
     try {
       const otpString = otp.join('');
-      const payload = contactType === 'email' 
-        ? { email, otp: otpString } 
-        : { mobile, otp: otpString };
-      const response = await authApi.verifyOTP(payload);
+      const response = await authApi.verifyOTP({ mobile, otp: otpString });
       if (response.success && response.data?.access_token) {
         const user = {
           id: '1',
-          email: contactType === 'email' ? email : undefined,
-          mobile: contactType === 'mobile' ? mobile : undefined,
+          mobile: mobile,
           role: 'admin',
         };
         login(response.data.access_token, user);
@@ -125,18 +118,15 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      // Validate Indian mobile number if mobile type is selected
-      if (contactType === 'mobile') {
-        const mobileRegex = /^[6-9]\d{9}$/;
-        if (!mobileRegex.test(mobile)) {
-          toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
-          setIsLoading(false);
-          return;
-        }
+      // Validate Indian mobile number
+      const mobileRegex = /^[6-9]\d{9}$/;
+      if (!mobileRegex.test(mobile)) {
+        toast.error('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+        setIsLoading(false);
+        return;
       }
 
-      const payload = contactType === 'email' ? { email } : { mobile };
-      const response = await authApi.sendOTP(payload);
+      const response = await authApi.sendOTP({ mobile });
       if (response.success) {
         toast.success('OTP resent successfully!');
         setOtp(['', '', '', '']);
@@ -169,82 +159,39 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl border-2">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
-              <span className="text-3xl font-bold text-primary-foreground">Z</span>
-            </div>
+            <Logo size="lg" />
           </div>
           <CardTitle className="text-3xl font-bold">Zexy Admin</CardTitle>
           <CardDescription className="text-base">
             {step === 'contact' 
-              ? 'Enter your email or mobile number to receive OTP' 
-              : 'Enter the OTP sent to your ' + (contactType === 'email' ? 'email' : 'mobile')}
+              ? 'Enter your mobile number to receive OTP' 
+              : 'Enter the OTP sent to your mobile'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {step === 'contact' ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
-              {/* Contact Type Toggle */}
-              <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => setContactType('email')}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    contactType === 'email'
-                      ? 'bg-background shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Email
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setContactType('mobile')}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                    contactType === 'mobile'
-                      ? 'bg-background shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Mobile
-                </button>
+              <div className="space-y-2">
+                <Label htmlFor="mobile">Mobile Number</Label>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  placeholder="9876543210"
+                  value={mobile}
+                  onChange={(e) => {
+                    // Only allow digits and limit to 10 characters
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setMobile(value);
+                  }}
+                  required
+                  maxLength={10}
+                  pattern="[6-9][0-9]{9}"
+                  className="h-11"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter 10-digit Indian mobile number (starting with 6-9)
+                </p>
               </div>
-
-              {contactType === 'email' ? (
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@zexy.live"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-11"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="mobile">Mobile Number</Label>
-                  <Input
-                    id="mobile"
-                    type="tel"
-                    placeholder="9876543210"
-                    value={mobile}
-                    onChange={(e) => {
-                      // Only allow digits and limit to 10 characters
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setMobile(value);
-                    }}
-                    required
-                    maxLength={10}
-                    pattern="[6-9][0-9]{9}"
-                    className="h-11"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Enter 10-digit Indian mobile number (starting with 6-9)
-                  </p>
-                </div>
-              )}
               
               <Button type="submit" className="w-full h-11" disabled={isLoading}>
                 {isLoading ? 'Sending...' : 'Send OTP'}
@@ -282,7 +229,8 @@ export default function LoginPage() {
                     setOtp(['', '', '', '']);
                   }}
                 >
-                  ← Change {contactType}
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Change mobile
                 </Button>
                 <Button
                   type="button"

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Megaphone, Users, Settings, BarChart3 } from 'lucide-react';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -20,9 +21,7 @@ export function Sidebar() {
     <aside className="w-64 border-r bg-card/50 backdrop-blur-sm flex flex-col">
       <div className="p-6 border-b">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <span className="text-xl font-bold text-primary-foreground">Z</span>
-          </div>
+          <Logo size="sm" />
           <div>
             <h2 className="font-bold text-lg">Zexy Admin</h2>
             <p className="text-xs text-muted-foreground">Campaign Manager</p>
@@ -50,13 +49,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="p-4 border-t">
-        <div className="px-4 py-3 rounded-lg bg-muted/50">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Need Help?</p>
-          <p className="text-xs text-muted-foreground">Check our documentation</p>
-        </div>
-      </div>
     </aside>
   );
 }

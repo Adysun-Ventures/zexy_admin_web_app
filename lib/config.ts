@@ -16,5 +16,5 @@ export const config = {
 
 // Log the active API URL in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  console.log('🔗 API Base URL:', config.apiBaseUrl);
+  console.log('[API] Base URL:', config.apiBaseUrl);
 }
