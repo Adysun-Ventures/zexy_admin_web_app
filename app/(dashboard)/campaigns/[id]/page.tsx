@@ -12,6 +12,18 @@ import type { Campaign } from '@/types/campaigns';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
+// Safe date formatter - handles null/undefined/invalid dates
+const formatDate = (dateString: string | null | undefined, formatStr: string, fallback: string = 'N/A'): string => {
+  if (!dateString) return fallback;
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return fallback;
+    return format(date, formatStr);
+  } catch {
+    return fallback;
+  }
+};
+
 export default function CampaignDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -101,10 +113,10 @@ export default function CampaignDetailsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {format(new Date(campaign.createdAt), 'MMM d')}
+              {formatDate(campaign.createdAt, 'MMM d')}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {format(new Date(campaign.createdAt), 'yyyy')}
+              {formatDate(campaign.createdAt, 'yyyy')}
             </p>
           </CardContent>
         </Card>
@@ -118,7 +130,7 @@ export default function CampaignDetailsPage() {
             <div className="text-2xl font-bold capitalize">{campaign.status}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {campaign.sentAt
-                ? `Sent ${format(new Date(campaign.sentAt), 'MMM d, yyyy')}`
+                ? `Sent ${formatDate(campaign.sentAt, 'MMM d, yyyy')}`
                 : 'Not sent yet'}
             </p>
           </CardContent>
@@ -174,7 +186,7 @@ export default function CampaignDetailsPage() {
             <div className="flex-1">
               <p className="font-medium">Created</p>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(campaign.createdAt), 'MMMM d, yyyy \'at\' h:mm a')}
+                {formatDate(campaign.createdAt, 'MMMM d, yyyy \'at\' h:mm a')}
               </p>
             </div>
           </div>
@@ -185,7 +197,7 @@ export default function CampaignDetailsPage() {
               <div className="flex-1">
                 <p className="font-medium">Scheduled</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(campaign.scheduledAt), 'MMMM d, yyyy \'at\' h:mm a')}
+                  {formatDate(campaign.scheduledAt, 'MMMM d, yyyy \'at\' h:mm a')}
                 </p>
               </div>
             </div>
@@ -197,7 +209,7 @@ export default function CampaignDetailsPage() {
               <div className="flex-1">
                 <p className="font-medium">Sent</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(campaign.sentAt), 'MMMM d, yyyy \'at\' h:mm a')}
+                  {formatDate(campaign.sentAt, 'MMMM d, yyyy \'at\' h:mm a')}
                 </p>
               </div>
             </div>

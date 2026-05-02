@@ -10,6 +10,18 @@ import type { Campaign } from '@/types/campaigns';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
+// Safe date formatter - handles null/undefined/invalid dates
+const formatDate = (dateString: string | null | undefined, formatStr: string, fallback: string = 'N/A'): string => {
+  if (!dateString) return fallback;
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return fallback;
+    return format(date, formatStr);
+  } catch {
+    return fallback;
+  }
+};
+
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -143,7 +155,9 @@ export default function CampaignsPage() {
               </div>
               <p className="text-4xl font-bold tracking-tight">
                 {campaigns.filter(c => {
+                  if (!c.createdAt) return false;
                   const created = new Date(c.createdAt);
+                  if (isNaN(created.getTime())) return false;
                   const now = new Date();
                   return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
                 }).length}
@@ -232,7 +246,7 @@ export default function CampaignsPage() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" />
-                            <span>{format(new Date(campaign.createdAt), 'MMM d, yyyy')}</span>
+                            <span>{formatDate(campaign.createdAt, 'MMM d, yyyy')}</span>
                           </div>
                         </div>
                       </div>

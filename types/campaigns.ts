@@ -6,7 +6,7 @@ export interface Campaign {
   status: 'draft' | 'active' | 'completed' | 'scheduled';
   targetAudience?: string[];
   recipientsCount?: number;
-  createdAt: string;
+  createdAt?: string;
   scheduledAt?: string;
   sentAt?: string;
 }
