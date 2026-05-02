@@ -5,7 +5,7 @@ export interface Campaign {
   body: string;
   status: 'draft' | 'active' | 'completed' | 'scheduled';
   targetAudience?: string[];
-  recipientsCount: number;
+  recipientsCount?: number;
   createdAt: string;
   scheduledAt?: string;
   sentAt?: string;

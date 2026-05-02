@@ -76,7 +76,7 @@ export default function CampaignsPage() {
     );
   }
 
-  const totalRecipients = campaigns.reduce((sum, c) => sum + c.recipientsCount, 0);
+  const totalRecipients = campaigns.reduce((sum, c) => sum + (c.recipientsCount || 0), 0);
   const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
 
   return (
@@ -227,7 +227,7 @@ export default function CampaignsPage() {
                         <div className="flex items-center gap-6 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <Users className="w-3.5 h-3.5" />
-                            <span className="font-medium">{campaign.recipientsCount.toLocaleString()}</span>
+                            <span className="font-medium">{(campaign.recipientsCount || 0).toLocaleString()}</span>
                             <span className="text-xs">recipients</span>
                           </div>
                           <div className="flex items-center gap-1.5">
