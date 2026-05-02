@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# runtime environment injection
+/public/env.js
+
 # vercel
 .vercel
 

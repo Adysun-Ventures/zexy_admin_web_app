@@ -1,10 +1,9 @@
 import axios from 'axios';
+import { config } from '@/lib/config';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live';
-
-// Create axios instance
+// Create axios instance with runtime-configurable base URL
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: config.apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

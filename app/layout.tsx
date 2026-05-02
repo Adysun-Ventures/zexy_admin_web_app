@@ -33,8 +33,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmSans.variable} ${sora.variable}`}
-      suppressHydrationOnChange
+      suppressHydrationWarning
     >
+      <head>
+        {/* Runtime environment configuration */}
+        <script src="/env.js" />
+      </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider
           attribute="class"

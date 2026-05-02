@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -37,12 +38,14 @@ export function Header() {
               <User className="h-5 w-5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">{user?.name || 'Admin'}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email || user?.mobile}</p>
-                </div>
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user?.name || 'Admin'}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email || user?.mobile}</p>
+                  </div>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout} className="text-red-600 cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
