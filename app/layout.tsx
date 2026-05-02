@@ -36,8 +36,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Runtime environment configuration */}
-        <script src="/env.js" />
+        {/* Runtime environment configuration - non-blocking */}
+        <script src="/env.js" async />
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider
