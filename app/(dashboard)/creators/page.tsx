@@ -104,6 +104,21 @@ export default function CreatorsPage() {
     }
   };
 
+  const getLastActivity = (user: User): string => {
+    const dates = [user.last_login_at].filter(Boolean);
+    if (dates.length === 0) return 'Never';
+    
+    try {
+      const timestamps = dates.map(d => new Date(d!).getTime()).filter(t => !isNaN(t));
+      if (timestamps.length === 0) return 'Never';
+      
+      const mostRecent = new Date(Math.max(...timestamps));
+      return formatDate(mostRecent.toISOString());
+    } catch {
+      return 'Never';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -185,7 +200,7 @@ export default function CreatorsPage() {
                     <TableHead>Mobile</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Onboarding</TableHead>
-                    <TableHead>Last Login</TableHead>
+                    <TableHead>Last Activity</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -221,7 +236,7 @@ export default function CreatorsPage() {
                           <Badge variant="outline">Pending</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{formatDate(creator.last_login_at)}</TableCell>
+                      <TableCell>{getLastActivity(creator)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Button
