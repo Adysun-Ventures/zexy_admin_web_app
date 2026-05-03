@@ -342,8 +342,8 @@ export default function CreatorDetailPage() {
 
                 {creator.onboarding_completed_at && (
                   <div className="flex items-start gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center">
+                      <CheckCircle2 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold">Onboarding Completed</p>
