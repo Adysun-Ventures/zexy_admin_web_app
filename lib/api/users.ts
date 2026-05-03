@@ -14,6 +14,22 @@ export interface User {
   created_at: string | null;
 }
 
+export interface UserDetail extends User {
+  niche: string | null;
+  onboarding_step: number;
+  onboarding_completed_at: string | null;
+  terms_accepted_at: string | null;
+  privacy_accepted_at: string | null;
+  age_verified_at: string | null;
+  consent_version: string | null;
+  gender: string | null;
+  date_of_birth: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  preferred_language: string;
+}
+
 export interface UserListResponse {
   users: User[];
   total: number;
@@ -46,6 +62,11 @@ export const usersApi = {
 
   getCreatorStats: async (): Promise<UserStats> => {
     const response = await apiClient.get('/api/v1/admin/creators/stats');
+    return response.data.data;
+  },
+
+  getCreatorDetail: async (id: number): Promise<UserDetail> => {
+    const response = await apiClient.get(`/api/v1/admin/creators/${id}`);
     return response.data.data;
   },
 

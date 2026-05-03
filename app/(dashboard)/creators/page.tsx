@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, UserPlus, Trash2, RefreshCw, Eye, Edit, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ import { usersApi, User, UserStats } from '@/lib/api/users';
 import { toast } from 'sonner';
 
 export default function CreatorsPage() {
+  const router = useRouter();
   const [creators, setCreators] = useState<User[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -244,6 +246,7 @@ export default function CreatorsPage() {
                             size="icon"
                             className="h-8 w-8"
                             title="View Details"
+                            onClick={() => router.push(`/creators/${creator.id}`)}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
