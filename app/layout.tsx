@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionExpiryModal } from "@/components/session-expiry-modal";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Toaster />
+            <SessionExpiryModal />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -33,6 +33,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    // Listen for session expiry events from axios interceptor
+    const handleSessionExpired = () => {
+      setToken(null);
+      setUser(null);
+    };
+
+    window.addEventListener('session-expired', handleSessionExpired);
+
+    return () => {
+      window.removeEventListener('session-expired', handleSessionExpired);
+    };
+  }, []);
+
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem('auth_token', newToken);
     localStorage.setItem('auth_user', JSON.stringify(newUser));

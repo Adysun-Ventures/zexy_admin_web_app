@@ -142,6 +142,41 @@ const actualData = response.data.data; // Not response.data
 
 ---
 
+### 8. **SESSION MANAGEMENT & AUTHENTICATION**
+
+**Pattern**: Users remain logged in with expired/invalid tokens, causing AUTH_002, AUTH_003, AUTH_008 errors.
+
+**Prevention Rules**:
+- ✅ Implement axios response interceptor to catch authentication errors
+- ✅ Listen for specific error codes: AUTH_002 (User not found), AUTH_003 (Token expired), AUTH_008 (Session revoked)
+- ✅ Dispatch custom events for session expiry to decouple API layer from UI
+- ✅ Show elegant modal/toast before redirecting to login
+- ✅ Clear localStorage tokens on authentication errors
+- ✅ Use event-driven architecture for cross-component communication
+
+**Implementation Pattern**:
+```typescript
+// In axios interceptor (lib/api/client.ts)
+const AUTH_ERROR_CODES = ['AUTH_002', 'AUTH_003', 'AUTH_008'];
+if (errorCode && AUTH_ERROR_CODES.includes(errorCode)) {
+  window.dispatchEvent(new CustomEvent('session-expired', { detail: { message } }));
+  localStorage.removeItem('auth_token');
+  setTimeout(() => window.location.href = '/login', 2000);
+}
+
+// In auth hook (lib/hooks/useAuth.tsx)
+useEffect(() => {
+  const handleSessionExpired = () => { /* clear state */ };
+  window.addEventListener('session-expired', handleSessionExpired);
+  return () => window.removeEventListener('session-expired', handleSessionExpired);
+}, []);
+
+// Session expiry modal component
+<SessionExpiryModal /> // Listens to 'session-expired' event
+```
+
+---
+
 ## Pre-Push Checklist
 
 Before pushing ANY code to production:
@@ -167,6 +202,7 @@ Before pushing ANY code to production:
 | `404 for /env.js` | Build script not generating file | Update build script to generate file |
 | `Type error: Property 'asChild' does not exist` | Using component without proper package | Install correct Radix UI package |
 | API returns data but UI shows empty | Wrong response extraction path | Check API wrapper structure |
+| AUTH_002/AUTH_003/AUTH_008 errors | Expired/invalid token still in localStorage | Implement axios interceptor for auth errors |
 
 ---
 
@@ -192,6 +228,12 @@ Before pushing ANY code to production:
 - **Issue**: Production build didn't generate runtime config file
 - **Fix**: Updated build script to run inject-env.js before next build
 - **Prevention**: Test production builds locally before deploying
+
+### 2025-05-03: Automatic Logout on Authentication Errors
+- **Issue**: Users with expired/invalid tokens received AUTH_002 errors but remained "logged in"
+- **Root Cause**: Axios interceptor only checked HTTP status codes (401), not API error codes
+- **Fix**: Enhanced interceptor to check AUTH_002, AUTH_003, AUTH_008 error codes; dispatch custom event; show elegant modal; auto-redirect
+- **Prevention**: Always handle both HTTP status AND application error codes for authentication failures
 
 ---
 
