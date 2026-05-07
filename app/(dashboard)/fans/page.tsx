@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, UserPlus, Trash2, RefreshCw, Eye, Edit, RotateCcw } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,16 +15,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/confirmation-dialog';
 import { usersApi, User, UserStats } from '@/lib/api/users';
+import { dummyFans } from '@/lib/mock/fans';
 import { toast } from 'sonner';
 
 export default function FansPage() {
+  const router = useRouter();
   const [fans, setFans] = useState<User[]>([]);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -36,11 +41,15 @@ export default function FansPage() {
         limit,
         offset: page * limit,
         search: search || undefined,
+        is_active: statusFilter === 'all' ? undefined : statusFilter === 'active',
       });
-      setFans(response.users);
-      setTotal(response.total);
+      const users = response.users?.length ? response.users : dummyFans;
+      setFans(users);
+      setTotal(response.users?.length ? response.total : dummyFans.length);
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Failed to load fans');
+      setFans(dummyFans);
+      setTotal(dummyFans.length);
     } finally {
       setLoading(false);
     }
@@ -58,7 +67,7 @@ export default function FansPage() {
   useEffect(() => {
     fetchFans();
     fetchStats();
-  }, [page]);
+  }, [page, statusFilter]);
 
   const handleSearch = () => {
     setPage(0);
@@ -86,102 +95,90 @@ export default function FansPage() {
     }
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Never';
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Never';
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return 'Never';
-    }
-  };
-
-  const getLastActivity = (user: User): string => {
-    const dates = [user.last_login_at].filter(Boolean);
-    if (dates.length === 0) return 'Never';
-    
-    try {
-      const timestamps = dates.map(d => new Date(d!).getTime()).filter(t => !isNaN(t));
-      if (timestamps.length === 0) return 'Never';
-      
-      const mostRecent = new Date(Math.max(...timestamps));
-      return formatDate(mostRecent.toISOString());
-    } catch {
-      return 'Never';
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Fans</h1>
-          <p className="text-muted-foreground">Manage fans and subscribers on the platform</p>
-        </div>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Fan
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
+      {/* Stats Summary */}
       {stats && (
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Total Fans</CardDescription>
-              <CardTitle className="text-3xl">{stats.total_users}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Active</CardDescription>
-              <CardTitle className="text-3xl text-green-600">{stats.active_users}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Onboarded</CardDescription>
-              <CardTitle className="text-3xl">{stats.completed_onboarding}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Pending</CardDescription>
-              <CardTitle className="text-3xl text-orange-600">{stats.pending_onboarding}</CardTitle>
-            </CardHeader>
-          </Card>
+        <div className="flex items-center gap-6 text-xs">
+          <span>Total: <span className="font-semibold">{stats.total_users}</span></span>
+          <span className="text-green-600">Active: <span className="font-semibold">{stats.active_users}</span></span>
+          <span className="text-red-500">Inactive: <span className="font-semibold">{stats.inactive_users}</span></span>
         </div>
       )}
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="flex-1 flex gap-2">
-              <Input
-                placeholder="Search by name, username, or mobile..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="max-w-md"
-              />
-              <Button onClick={handleSearch} variant="secondary">
-                <Search className="h-4 w-4" />
+      <div className="text-sm">
+        <Link href="/campaigns" className="font-medium text-slate-800 hover:text-slate-950">
+          Dashboard
+        </Link>
+        <span className="mx-2">{'>'}</span>
+        <span className="font-medium text-slate-400">Fans</span>
+      </div>
+
+      <Card className="rounded-md border border-slate-200 shadow-none">
+        <CardHeader className="pb-2">
+          <div className="relative mb-3 flex items-center justify-center">
+            <div className="absolute left-0">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/campaigns')}
+                className="h-8 rounded-full border-slate-200 px-3 text-xs"
+                title="Back"
+              >
+                <i className="fa-solid fa-arrow-left mr-1.5 text-[10px]" aria-hidden="true" />
+                Back
               </Button>
             </div>
-            <Button variant="outline" size="icon" onClick={fetchFans}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">Fans</h1>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={fetchFans}
+                className="h-8 w-8 border-slate-200"
+                title="Refresh"
+              >
+                <i className="fa-solid fa-rotate-right text-xs" aria-hidden="true" />
+              </Button>
+            </div>
+            <div className="absolute right-0">
+              <Button
+                className="rounded-full bg-green-600 px-4 text-white hover:bg-green-700"
+                onClick={() => router.push('/fans/new')}
+              >
+                <i className="fa-regular fa-square-plus mr-2 text-sm" aria-hidden="true" />
+                Add Fan
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-center">
+              <p className="text-sm font-semibold text-slate-700">{total}</p>
+              <p className="text-xs text-slate-500">Total Fans</p>
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-8 min-w-20 rounded border border-slate-200 bg-white px-2 text-xs"
+              >
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+              <div className="relative w-full max-w-44">
+                <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <Input
+                  placeholder="Search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  className="h-8 border-slate-200 pl-7 text-xs"
+                />
+              </div>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Loading fans...</div>
           ) : !fans || fans.length === 0 ? (
@@ -190,76 +187,61 @@ export default function FansPage() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Username</TableHead>
-                    <TableHead>Mobile</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Onboarding</TableHead>
-                    <TableHead>Last Activity</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="border-y border-slate-200 bg-slate-50">
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Name</TableHead>
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">User Name</TableHead>
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Mobile No</TableHead>
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">City</TableHead>
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Status</TableHead>
+                    <TableHead className="h-9 px-4 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-500">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {fans.map((fan) => (
-                    <TableRow key={fan.id}>
-                      <TableCell className="font-medium">{fan.id}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {fan.avatar && (
-                            <img
-                              src={fan.avatar}
-                              alt={fan.name || 'Avatar'}
-                              className="w-8 h-8 rounded-full"
-                            />
-                          )}
-                          <span>{fan.name || '-'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{fan.username || '-'}</TableCell>
-                      <TableCell>{fan.mobile}</TableCell>
-                      <TableCell>
+                    <TableRow key={fan.id} className="h-11 border-slate-100">
+                      <TableCell className="px-4 text-center text-sm text-slate-700">{fan.name || '-'}</TableCell>
+                      <TableCell className="px-4 text-center text-sm text-slate-700">{fan.username || '-'}</TableCell>
+                      <TableCell className="px-4 text-center text-sm font-medium text-slate-700">{fan.mobile || '-'}</TableCell>
+                      <TableCell className="px-4 text-center text-sm text-slate-700">{fan.city || '-'}</TableCell>
+                      <TableCell className="px-4 text-center">
                         {fan.is_active ? (
-                          <Badge variant="default" className="bg-green-600">Active</Badge>
+                          <Badge variant="secondary" className="h-6 rounded-full bg-green-100 px-2.5 text-xs font-medium text-green-700 hover:bg-green-100">
+                            Active
+                          </Badge>
                         ) : (
-                          <Badge variant="secondary">Inactive</Badge>
+                          <Badge variant="secondary" className="h-6 rounded-full bg-red-100 px-2.5 text-xs font-medium text-red-700 hover:bg-red-100">
+                            Inactive
+                          </Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {fan.has_completed_onboarding ? (
-                          <Badge variant="default">Complete</Badge>
-                        ) : (
-                          <Badge variant="outline">Pending</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>{getLastActivity(fan)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <TableCell className="px-4">
+                        <div className="flex items-center justify-center gap-1.5">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-9 w-9 rounded-md border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100"
                             title="View Details"
+                            onClick={() => router.push(`/fans/${fan.id}`)}
                           >
-                            <Eye className="h-4 w-4" />
+                            <i className="fa-solid fa-eye text-sm" aria-hidden="true" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-9 w-9 rounded-md border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
                             title="Edit"
+                            onClick={() => router.push(`/fans/${fan.id}/edit`)}
                           >
-                            <Edit className="h-4 w-4" />
+                            <i className="fa-solid fa-pen-to-square text-sm" aria-hidden="true" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-9 w-9 rounded-md border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                             title="Delete"
                             onClick={() => handleDeleteClick(fan.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <i className="fa-regular fa-trash-can text-sm" aria-hidden="true" />
                           </Button>
                         </div>
                       </TableCell>
@@ -269,14 +251,15 @@ export default function FansPage() {
               </Table>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
+                <div className="text-xs text-muted-foreground">
                   Showing {page * limit + 1} to {Math.min((page + 1) * limit, total)} of {total} fans
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="h-8 text-xs"
                     onClick={() => setPage(page - 1)}
                     disabled={page === 0}
                   >
@@ -285,6 +268,7 @@ export default function FansPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="h-8 text-xs"
                     onClick={() => setPage(page + 1)}
                     disabled={(page + 1) * limit >= total}
                   >

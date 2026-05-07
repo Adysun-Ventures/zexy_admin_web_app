@@ -20,7 +20,7 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 border-r bg-card/50 backdrop-blur-sm flex flex-col">
-      <div className="p-6 border-b">
+      <div className="h-16 px-6 border-b flex items-center">
         <div className="flex items-center gap-3">
           <Logo size="sm" />
           <div>

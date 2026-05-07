@@ -5,6 +5,9 @@ export interface User {
   mobile: string;
   username: string | null;
   name: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
   avatar: string | null;
   role: 'creator' | 'fan' | 'admin';
   is_active: boolean;
@@ -46,6 +49,28 @@ export interface UserStats {
   pending_onboarding: number;
 }
 
+export interface FanPayload {
+  mobile: string;
+  username: string;
+  name: string;
+  gender: string;
+  date_of_birth: string;
+  city: string;
+  state: string;
+  country: string;
+}
+
+export interface CreatorPayload {
+  mobile: string;
+  username: string;
+  name: string;
+  gender: string;
+  date_of_birth: string;
+  city: string;
+  state: string;
+  country: string;
+}
+
 export const usersApi = {
   // Creators
   listCreators: async (params?: {
@@ -67,6 +92,16 @@ export const usersApi = {
 
   getCreatorDetail: async (id: number): Promise<UserDetail> => {
     const response = await apiClient.get(`/api/v1/admin/creators/${id}`);
+    return response.data.data;
+  },
+
+  createCreator: async (payload: CreatorPayload): Promise<UserDetail> => {
+    const response = await apiClient.post('/api/v1/admin/creators', payload);
+    return response.data.data;
+  },
+
+  updateCreator: async (id: number, payload: CreatorPayload): Promise<UserDetail> => {
+    const response = await apiClient.put(`/api/v1/admin/creators/${id}`, payload);
     return response.data.data;
   },
 
@@ -95,6 +130,21 @@ export const usersApi = {
 
   getFanStats: async (): Promise<UserStats> => {
     const response = await apiClient.get('/api/v1/admin/fans/stats');
+    return response.data.data;
+  },
+
+  getFanDetail: async (id: number): Promise<UserDetail> => {
+    const response = await apiClient.get(`/api/v1/admin/fans/${id}`);
+    return response.data.data;
+  },
+
+  createFan: async (payload: FanPayload): Promise<UserDetail> => {
+    const response = await apiClient.post('/api/v1/admin/fans', payload);
+    return response.data.data;
+  },
+
+  updateFan: async (id: number, payload: FanPayload): Promise<UserDetail> => {
+    const response = await apiClient.put(`/api/v1/admin/fans/${id}`, payload);
     return response.data.data;
   },
 
