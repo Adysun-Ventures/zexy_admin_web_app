@@ -110,9 +110,9 @@ The dashboard integrates with the Zexy API at `https://api.zexy.live`:
 - `POST /api/v1/admin/auth/otp/verify` - Verify OTP and get auth token
 
 ### Campaign Endpoints
-- `GET /api/v1/admin/notifications/campaigns` - List all campaigns
-- `POST /api/v1/admin/notifications/campaign` - Create new campaign
-- `GET /api/v1/admin/notifications/campaigns/{id}` - Get campaign details
+- `GET /api/v1/admin/notifications` - List all campaigns
+- `POST /api/v1/admin/notifications` - Create new campaign
+- `GET /api/v1/admin/notifications/{id}` - Get campaign details
 
 ## Authentication Flow
 

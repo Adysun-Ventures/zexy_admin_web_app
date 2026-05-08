@@ -110,9 +110,9 @@ zexy_admin_shadcn/
 ### Endpoints Implemented
 1. **POST /api/v1/admin/auth/otp/send** - Send OTP
 2. **POST /api/v1/admin/auth/otp/verify** - Verify OTP
-3. **GET /api/v1/admin/notifications/campaigns** - List campaigns
-4. **POST /api/v1/admin/notifications/campaign** - Create campaign
-5. **GET /api/v1/admin/notifications/campaigns/{id}** - Get campaign details
+3. **GET /api/v1/admin/notifications** - List campaigns
+4. **POST /api/v1/admin/notifications** - Create campaign
+5. **GET /api/v1/admin/notifications/{id}** - Get campaign details
 
 ### API Client Features
 - Base URL configuration via environment variables

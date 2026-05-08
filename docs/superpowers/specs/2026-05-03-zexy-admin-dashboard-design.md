@@ -88,9 +88,9 @@ Platform administrators and content managers who need to send targeted notificat
    - `POST /api/v1/admin/auth/otp/verify` - Verify OTP and get auth token
 
 2. **Notification Campaigns**
-   - `GET /api/v1/admin/notifications/campaigns` - List all campaigns
-   - `POST /api/v1/admin/notifications/campaign` - Create new campaign
-   - `GET /api/v1/admin/notifications/campaigns/{campaign_id}` - Get campaign details
+   - `GET /api/v1/admin/notifications` - List all campaigns
+   - `POST /api/v1/admin/notifications` - Create new campaign
+   - `GET /api/v1/admin/notifications/{campaign_id}` - Get campaign details
 
 **Authentication Flow:**
 1. User enters email/phone on login page
@@ -201,7 +201,7 @@ Platform administrators and content managers who need to send targeted notificat
 - Show errors inline
 
 **Submission:**
-- POST to `/api/v1/admin/notifications/campaign`
+- POST to `/api/v1/admin/notifications`
 - Loading state on submit button
 - Success: Show toast and redirect to campaigns list
 - Error: Show error message, keep form data
