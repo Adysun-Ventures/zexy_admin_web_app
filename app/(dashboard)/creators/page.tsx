@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
 import {
   Table,
   TableBody,
@@ -188,7 +189,11 @@ export default function CreatorsPage() {
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Loading creators...</div>
           ) : !creators || creators.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">No creators found</div>
+            <EmptyStatePlaceholder
+              icon={Users}
+              title="No creators found"
+              description="Try adjusting search or status filters."
+            />
           ) : (
             <>
               <Table>
