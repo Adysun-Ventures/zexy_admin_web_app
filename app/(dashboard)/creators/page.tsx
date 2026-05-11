@@ -98,15 +98,6 @@ export default function CreatorsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Summary */}
-      {stats && (
-        <div className="flex items-center gap-6 text-xs">
-          <span>Total: <span className="font-semibold">{stats.total_users}</span></span>
-          <span className="text-green-600">Active: <span className="font-semibold">{stats.active_users}</span></span>
-          <span className="text-red-500">Inactive: <span className="font-semibold">{stats.inactive_users}</span></span>
-        </div>
-      )}
-
       <div className="text-sm">
         <Link href="/campaigns" className="font-medium text-slate-800 hover:text-slate-950">
           Dashboard
@@ -146,7 +137,7 @@ export default function CreatorsPage() {
             <div className="absolute right-0">
               <Button
                 className="rounded-full bg-green-600 px-4 text-white hover:bg-green-700"
-                onClick={() => router.push('/creators/new')}
+                onClick={() => router.push('/creators/create_creator')}
               >
                 <i className="fa-regular fa-square-plus mr-2 text-sm" aria-hidden="true" />
                 Add Creator

@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Calendar, Users, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { campaignsApi } from '@/lib/api/campaigns';
 import type { Campaign } from '@/types/campaigns';
 import { toast } from 'sonner';
@@ -42,7 +41,7 @@ export default function CampaignDetailsPage() {
       setCampaign(data);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch campaign');
-      router.push('/campaigns');
+      router.push('/notification_list');
     } finally {
       setIsLoading(false);
     }
@@ -76,150 +75,74 @@ export default function CampaignDetailsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">{campaign.name}</h1>
-          <p className="text-muted-foreground mt-1">Campaign details and information</p>
-        </div>
-        <Badge variant="outline" className={`${getStatusColor(campaign.status)} text-sm px-3 py-1`}>
-          {campaign.status}
-        </Badge>
+    <div className="space-y-6">
+      <div className="text-sm">
+        <Link href="/notification_list" className="font-medium text-slate-800 hover:text-slate-950">
+          Dashboard
+        </Link>
+        <span className="mx-2 text-slate-500">{'>'}</span>
+        <Link href="/notification_list" className="font-medium text-slate-800 hover:text-slate-950">
+          Notification
+        </Link>
+        <span className="mx-2 text-slate-500">{'>'}</span>
+        <span className="font-medium text-slate-400">View</span>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recipients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(campaign.recipientsCount || 0).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total users targeted</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Created</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatDate(campaign.createdAt, 'MMM d')}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatDate(campaign.createdAt, 'yyyy')}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <Send className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold capitalize">{campaign.status}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {campaign.sentAt
-                ? `Sent ${formatDate(campaign.sentAt, 'MMM d, yyyy')}`
-                : 'Not sent yet'}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
+      <Card className="border border-slate-200 shadow-none">
         <CardHeader>
-          <CardTitle>Message Content</CardTitle>
-          <CardDescription>The notification message sent to users</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground">Title</Label>
-            <p className="text-lg font-semibold mt-1">{campaign.title}</p>
-          </div>
-          
-          <Separator />
-          
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground">Body</Label>
-            <p className="text-base mt-1 whitespace-pre-wrap">{campaign.body}</p>
-          </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/notification_list')}
+              className="h-9 rounded-full px-3"
+              title="Back"
+            >
+              <i className="fa-solid fa-arrow-left mr-2 text-sm" aria-hidden="true" />
+              Back
+            </Button>
 
-      {campaign.targetAudience && campaign.targetAudience.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Target Audience</CardTitle>
-            <CardDescription>User segments targeted by this campaign</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {campaign.targetAudience.map((audience, index) => (
-                <Badge key={index} variant="secondary">
-                  {audience}
-                </Badge>
-              ))}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold">Notification View</h1>
             </div>
-          </CardContent>
-        </Card>
-      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Timeline</CardTitle>
-          <CardDescription>Campaign activity timeline</CardDescription>
+            <Badge variant="outline" className={`${getStatusColor(campaign.status)} px-3 py-1 text-sm`}>
+              {campaign.status}
+            </Badge>
+          </div>
+
+          <CardTitle className="mt-3">Notification #{campaign.id}</CardTitle>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          <div className="flex items-start gap-4">
-            <div className="w-2 h-2 rounded-full bg-primary mt-2" />
-            <div className="flex-1">
-              <p className="font-medium">Created</p>
-              <p className="text-sm text-muted-foreground">
-                {formatDate(campaign.createdAt, 'MMMM d, yyyy \'at\' h:mm a')}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-sm text-muted-foreground">Title</p>
+              <p className="font-medium">{campaign.title || campaign.name || '-'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Sent date &amp; time</p>
+              <p className="font-medium">
+                {formatDate(campaign.sent_date_time || campaign.first_sent_at || campaign.createdAt, 'MMM d, yyyy h:mm a')}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Targeted IDs</p>
+              <p className="font-medium">
+                {(campaign.targeted_ids?.length ?? 0) > 0
+                  ? (campaign.targeted_ids || []).join(', ')
+                  : 'All'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Created By</p>
+              <p className="font-medium">
+                {campaign.created_by || 'Unknown'}
               </p>
             </div>
           </div>
 
-          {campaign.scheduledAt && (
-            <div className="flex items-start gap-4">
-              <div className="w-2 h-2 rounded-full bg-amber-500 mt-2" />
-              <div className="flex-1">
-                <p className="font-medium">Scheduled</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(campaign.scheduledAt, 'MMMM d, yyyy \'at\' h:mm a')}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {campaign.sentAt && (
-            <div className="flex items-start gap-4">
-              <div className="w-2 h-2 rounded-full bg-green-500 mt-2" />
-              <div className="flex-1">
-                <p className="font-medium">Sent</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(campaign.sentAt, 'MMMM d, yyyy \'at\' h:mm a')}
-                </p>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
   );
-}
-
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>;
 }

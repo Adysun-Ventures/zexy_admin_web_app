@@ -14,6 +14,7 @@ export interface User {
   is_deleted: boolean;
   has_completed_onboarding: boolean;
   last_login_at: string | null;
+  last_login_on?: string | null;
   created_at: string | null;
 }
 
@@ -31,7 +32,19 @@ export interface UserDetail extends User {
   state: string | null;
   country: string | null;
   preferred_language: string;
+  created_by_name?: string | null;
+  updated_by_name?: string | null;
 }
+
+const normalizeUser = (user: any): User => ({
+  ...user,
+  last_login_at: user.last_login_at ?? user.last_login_on ?? null,
+});
+
+const normalizeUserDetail = (user: any): UserDetail => ({
+  ...user,
+  last_login_at: user.last_login_at ?? user.last_login_on ?? null,
+});
 
 export interface UserListResponse {
   users: User[];
@@ -60,10 +73,56 @@ export interface FanPayload {
   country: string;
 }
 
+export interface FanCreatePayload {
+  mobile: string;
+  username: string;
+  name: string;
+  role: 'creator' | 'fan' | 'admin';
+  is_active: boolean;
+  has_completed_onboarding: boolean;
+  niche: string;
+  gender: string;
+  city: string;
+  state: string;
+  country: string;
+  avatar: string;
+  date_of_birth: string;
+}
+
 export interface CreatorPayload {
   mobile: string;
   username: string;
   name: string;
+  gender: string;
+  date_of_birth: string;
+  city: string;
+  state: string;
+  country: string;
+}
+
+export interface CreatorCreatePayload {
+  mobile: string;
+  username: string;
+  name: string;
+  role: 'creator' | 'fan' | 'admin';
+  is_active: boolean;
+  has_completed_onboarding: boolean;
+  niche: string;
+  gender: string;
+  date_of_birth: string;
+  city: string;
+  state: string;
+  country: string;
+  avatar: string;
+}
+
+export interface CreatorUpdatePayload {
+  name: string;
+  username: string;
+  avatar: string;
+  niche: string;
+  is_active: boolean;
+  role: 'creator' | 'fan' | 'admin';
   gender: string;
   date_of_birth: string;
   city: string;
@@ -81,8 +140,11 @@ export const usersApi = {
     include_deleted?: boolean;
   }): Promise<UserListResponse> => {
     const response = await apiClient.get('/api/v1/admin/creators', { params });
-    // API wraps response in { success, data, error, meta }
-    return response.data.data;
+    const data = response.data.data;
+    return {
+      ...data,
+      users: (data.users || []).map(normalizeUser),
+    };
   },
 
   getCreatorStats: async (): Promise<UserStats> => {
@@ -92,17 +154,17 @@ export const usersApi = {
 
   getCreatorDetail: async (id: number): Promise<UserDetail> => {
     const response = await apiClient.get(`/api/v1/admin/creators/${id}`);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
-  createCreator: async (payload: CreatorPayload): Promise<UserDetail> => {
+  createCreator: async (payload: CreatorCreatePayload): Promise<UserDetail> => {
     const response = await apiClient.post('/api/v1/admin/creators', payload);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
-  updateCreator: async (id: number, payload: CreatorPayload): Promise<UserDetail> => {
+  updateCreator: async (id: number, payload: CreatorUpdatePayload): Promise<UserDetail> => {
     const response = await apiClient.put(`/api/v1/admin/creators/${id}`, payload);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
   deleteCreator: async (id: number, hardDelete: boolean = false): Promise<void> => {
@@ -125,7 +187,11 @@ export const usersApi = {
     include_deleted?: boolean;
   }): Promise<UserListResponse> => {
     const response = await apiClient.get('/api/v1/admin/fans', { params });
-    return response.data.data;
+    const data = response.data.data;
+    return {
+      ...data,
+      users: (data.users || []).map(normalizeUser),
+    };
   },
 
   getFanStats: async (): Promise<UserStats> => {
@@ -135,17 +201,17 @@ export const usersApi = {
 
   getFanDetail: async (id: number): Promise<UserDetail> => {
     const response = await apiClient.get(`/api/v1/admin/fans/${id}`);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
-  createFan: async (payload: FanPayload): Promise<UserDetail> => {
+  createFan: async (payload: FanCreatePayload): Promise<UserDetail> => {
     const response = await apiClient.post('/api/v1/admin/fans', payload);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
   updateFan: async (id: number, payload: FanPayload): Promise<UserDetail> => {
     const response = await apiClient.put(`/api/v1/admin/fans/${id}`, payload);
-    return response.data.data;
+    return normalizeUserDetail(response.data.data);
   },
 
   deleteFan: async (id: number, hardDelete: boolean = false): Promise<void> => {
