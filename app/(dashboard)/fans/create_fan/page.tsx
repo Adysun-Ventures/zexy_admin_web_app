@@ -1,20 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { usersApi, FanPayload } from '@/lib/api/users';
-import { getDummyFanById } from '@/lib/mock/fans';
+import { usersApi, FanCreatePayload, FanPayload } from '@/lib/api/users';
 import { toast } from 'sonner';
 
-type FanFormData = FanPayload & {
-};
+type FanFormData = FanPayload & {};
 
-const emptyForm: FanFormData = {
+const initialForm: FanFormData = {
   mobile: '',
   username: '',
   name: '',
@@ -25,101 +23,46 @@ const emptyForm: FanFormData = {
   country: '',
 };
 
-export default function EditFanPage() {
-  const params = useParams();
+export default function CreateFanPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [formData, setFormData] = useState<FanFormData>(emptyForm);
-  const [fanName, setFanName] = useState('');
-
-  useEffect(() => {
-    if (params.id) {
-      fetchFan(Number(params.id));
-    }
-  }, [params.id]);
-
-  const fetchFan = async (id: number) => {
-    try {
-      setInitialLoading(true);
-      const fan = await usersApi.getFanDetail(id);
-      setFanName(fan.name || '');
-      setFormData({
-        mobile: fan.mobile || '',
-        username: fan.username || '',
-        name: fan.name || '',
-        gender: fan.gender || '',
-        date_of_birth: fan.date_of_birth ? fan.date_of_birth.split('T')[0] : '',
-        city: fan.city || '',
-        state: fan.state || '',
-        country: fan.country || '',
-      });
-    } catch (error: any) {
-      const fallbackFan = getDummyFanById(id);
-      if (!fallbackFan) {
-        toast.error(error.response?.data?.error?.message || 'Failed to load fan details');
-        router.push('/fans');
-        return;
-      }
-
-      setFormData({
-        mobile: fallbackFan.mobile || '',
-        username: fallbackFan.username || '',
-        name: fallbackFan.name || '',
-        gender: fallbackFan.gender || '',
-        date_of_birth: fallbackFan.date_of_birth ? fallbackFan.date_of_birth.split('T')[0] : '',
-        city: fallbackFan.city || '',
-        state: fallbackFan.state || '',
-        country: fallbackFan.country || '',
-      });
-      setFanName(fallbackFan.name || '');
-    } finally {
-      setInitialLoading(false);
-    }
-  };
+  const [formData, setFormData] = useState<FanFormData>(initialForm);
+  const [niche, setNiche] = useState('fitness');
+  const avatar = 'https://randomuser.me/api/portraits/men/51.jpg';
 
   const handleChange = (field: keyof FanFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const clearSection = (fields: Array<keyof FanFormData>) => {
-    setFormData((prev) => {
-      const updated = { ...prev };
-      fields.forEach((field) => {
-        updated[field] = '';
-      });
-      return updated;
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!params.id) return;
     setIsLoading(true);
     try {
-      const payload: FanPayload = {
+      const payload: FanCreatePayload = {
         mobile: formData.mobile,
         username: formData.username,
         name: formData.name,
+        role: 'fan',
+        is_active: true,
+        has_completed_onboarding: true,
+        niche: niche.trim() || 'fitness',
         gender: formData.gender,
-        date_of_birth: formData.date_of_birth,
+        date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
         city: formData.city,
         state: formData.state,
         country: formData.country,
+        avatar,
       };
-      await usersApi.updateFan(Number(params.id), payload);
-      toast.success('Fan updated successfully');
-      router.push(`/fans/${params.id}`);
+
+      const created = await usersApi.createFan(payload);
+      toast.success('Fan created successfully');
+      router.push(`/fans/${created.id}`);
     } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to update fan');
+      toast.error(error.response?.data?.error?.message || 'Failed to create fan');
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (initialLoading) {
-    return <div className="py-12 text-center text-muted-foreground">Loading fan...</div>;
-  }
 
   return (
     <div className="space-y-4">
@@ -132,34 +75,27 @@ export default function EditFanPage() {
           Fans
         </Link>
         <span className="mx-2 text-slate-500">{'>'}</span>
-        <Link
-          href={`/fans/${params.id}`}
-          className="font-medium text-slate-800 hover:text-slate-950 transition-colors"
-        >
-          {fanName || 'Fan'}
-        </Link>
-        <span className="mx-2 text-slate-500">{'>'}</span>
-        <span className="font-medium text-slate-400">Edit Fan</span>
+        <span className="font-medium text-slate-400">Create Fan</span>
       </div>
 
-      <Card className="border border-slate-200 shadow-none">
+      <Card className="border border-slate-200 shadow-none py-0">
         <CardContent className="p-4 md:p-5">
           <div className="mb-4 flex items-center justify-between">
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push(`/fans/${params.id}`)}
+              onClick={() => router.push('/fans')}
               className="h-9 rounded-full px-5 text-sm"
             >
               <i className="fa-solid fa-arrow-left mr-2 text-sm" aria-hidden="true" />
               Back
             </Button>
 
-            <h1 className="text-3xl font-bold tracking-tight">Edit Fan</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Create Fan</h1>
 
             <Button
               type="submit"
-              form="edit-fan-form"
+              form="add-fan-form"
               className="h-9 rounded-full bg-green-600 px-5 text-sm text-white hover:bg-green-700"
               disabled={isLoading}
             >
@@ -168,7 +104,7 @@ export default function EditFanPage() {
             </Button>
           </div>
 
-          <form id="edit-fan-form" onSubmit={handleSubmit} className="space-y-6">
+          <form id="add-fan-form" onSubmit={handleSubmit} className="space-y-6">
             <section className="space-y-3">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <div className="space-y-1.5">
@@ -269,18 +205,33 @@ export default function EditFanPage() {
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
+                <div className="space-y-1.5 md:col-span-3">
+                  <Label htmlFor="niche">Niche</Label>
+                  <Input
+                    id="niche"
+                    value={niche}
+                    onChange={(e) => setNiche(e.target.value)}
+                    placeholder="fitness"
+                    className="h-9"
+                  />
+                </div>
+                <div className="hidden md:block" />
+              </div>
             </section>
 
-            <div className="flex items-center justify-between pt-4">
+            <div className="flex items-center justify-between pt-1">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push(`/fans/${params.id}`)}
+                onClick={() => router.push('/fans')}
                 className="h-9 rounded-md border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-100"
               >
                 <i className="fa-solid fa-xmark mr-2 text-sm" aria-hidden="true" />
                 Cancel
               </Button>
+
               <Button
                 type="submit"
                 className="h-9 rounded-full bg-green-600 px-5 text-sm text-white hover:bg-green-700"
@@ -296,3 +247,4 @@ export default function EditFanPage() {
     </div>
   );
 }
+

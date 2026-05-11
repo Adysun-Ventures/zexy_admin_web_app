@@ -104,7 +104,7 @@ export default function LoginPage() {
         };
         login(response.data.access_token, user);
         toast.success('Login successful!');
-        router.push('/campaigns');
+      router.push('/notification_list');
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Invalid OTP');
