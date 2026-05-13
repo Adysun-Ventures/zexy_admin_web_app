@@ -25,8 +25,7 @@ export interface Campaign {
 export interface CreateCampaignRequest {
   title: string;
   body: string;
-  segment: 'all' | 'user';
-  user_ids?: number[];
+  targeted_ids?: number[];
 }
 
 export interface CreateNotificationResponse {

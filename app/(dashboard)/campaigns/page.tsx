@@ -23,6 +23,24 @@ const formatDate = (dateString: string | null | undefined, formatStr: string, fa
   }
 };
 
+/** List rows must expose a numeric API id for GET /admin/notifications/:id */
+function getNotificationViewId(campaign: { campaign_id?: string; id: string }): string | null {
+  const candidates = [campaign.campaign_id, campaign.id].filter(Boolean) as string[];
+  for (const c of candidates) {
+    if (/^\d+$/.test(String(c))) return String(c);
+  }
+  return null;
+}
+
+function buildFallbackViewUrl(campaign: Campaign): string {
+  const params = new URLSearchParams();
+  params.set('title', campaign.title || campaign.name || '');
+  params.set('sent_date_time', campaign.sent_date_time || campaign.first_sent_at || campaign.createdAt || '');
+  params.set('created_by', campaign.created_by || '');
+  params.set('targeted_ids', (campaign.targeted_ids || []).join(','));
+  return `/notification_list/view/${encodeURIComponent(campaign.id)}?${params.toString()}`;
+}
+
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,11 +155,12 @@ export default function CampaignsPage() {
                           className="h-9 w-9 rounded-md border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100"
                           title="View Details"
                           onClick={() => {
-                            if (campaign.campaign_id) {
-                              router.push(`/campaigns/${campaign.campaign_id}`);
+                            const viewId = getNotificationViewId(campaign);
+                            if (viewId) {
+                              router.push(`/notification_list/view/${viewId}`);
                               return;
                             }
-                            toast.error('View is not available for this notification');
+                            router.push(buildFallbackViewUrl(campaign));
                           }}
                         >
                           <i className="fa-solid fa-eye text-sm" aria-hidden="true" />

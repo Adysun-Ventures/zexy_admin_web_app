@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { campaignsApi } from '@/lib/api/campaigns';
 import type { Campaign } from '@/types/campaigns';
@@ -25,6 +24,7 @@ const formatDate = (dateString: string | null | undefined, formatStr: string, fa
 
 export default function CampaignDetailsPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,25 +40,34 @@ export default function CampaignDetailsPage() {
       const data = await campaignsApi.getById(id);
       setCampaign(data);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to fetch campaign');
-      router.push('/notification_list');
+      const fallbackTitle = searchParams.get('title');
+      if (fallbackTitle) {
+        const targetedIds = (searchParams.get('targeted_ids') || '')
+          .split(',')
+          .map((x) => Number(x.trim()))
+          .filter((n) => Number.isFinite(n));
+
+        setCampaign({
+          id,
+          campaign_id: id,
+          name: `Notification #${id}`,
+          title: fallbackTitle,
+          body: '',
+          status: 'completed',
+          targeted_ids: targetedIds,
+          sent_date_time: searchParams.get('sent_date_time') || undefined,
+          created_by: searchParams.get('created_by') || undefined,
+          createdAt: searchParams.get('sent_date_time') || undefined,
+          first_sent_at: searchParams.get('sent_date_time') || undefined,
+          recipientsCount: targetedIds.length,
+          total_records: targetedIds.length,
+        });
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to fetch campaign');
+        router.push('/notification_list');
+      }
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: Campaign['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
-      case 'completed':
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
-      case 'scheduled':
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
-      case 'draft':
-        return 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20';
-      default:
-        return 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20';
     }
   };
 
@@ -102,45 +111,42 @@ export default function CampaignDetailsPage() {
             </Button>
 
             <div className="text-center">
-              <h1 className="text-3xl font-bold">Notification View</h1>
+              <h1 className="text-3xl font-bold">View</h1>
             </div>
-
-            <Badge variant="outline" className={`${getStatusColor(campaign.status)} px-3 py-1 text-sm`}>
-              {campaign.status}
-            </Badge>
+            <div />
           </div>
 
-          <CardTitle className="mt-3">Notification #{campaign.id}</CardTitle>
+          <CardTitle className="mt-3" />
         </CardHeader>
 
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">Title</p>
-              <p className="font-medium">{campaign.title || campaign.name || '-'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Sent date &amp; time</p>
-              <p className="font-medium">
-                {formatDate(campaign.sent_date_time || campaign.first_sent_at || campaign.createdAt, 'MMM d, yyyy h:mm a')}
-              </p>
+              <p className="font-medium">{campaign.title || campaign.name || '—'}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Targeted IDs</p>
               <p className="font-medium">
                 {(campaign.targeted_ids?.length ?? 0) > 0
                   ? (campaign.targeted_ids || []).join(', ')
-                  : 'All'}
+                  : '—'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Created By</p>
+              <p className="text-sm text-muted-foreground">Sent date &amp; time</p>
               <p className="font-medium">
-                {campaign.created_by || 'Unknown'}
+                {formatDate(
+                  campaign.sent_date_time || campaign.first_sent_at || campaign.createdAt,
+                  'MMM d, yyyy h:mm a'
+                )}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Created by</p>
+              <p className="font-medium">{campaign.created_by || 'Unknown'}</p>
+            </div>
           </div>
-
         </CardContent>
       </Card>
     </div>

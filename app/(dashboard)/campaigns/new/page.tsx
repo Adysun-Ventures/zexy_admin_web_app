@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles, Bell } from 'lucide-react';
+import { Sparkles, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -55,16 +56,59 @@ export default function NewCampaignPage() {
     setSelectedUserIds((prev) => prev.filter((x) => x !== id));
   };
 
+  const parseUserIdInput = (value: string): { mode: 'all' | 'id' | 'invalid'; id?: number } => {
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) return { mode: 'invalid' };
+    if (trimmed === 'all') return { mode: 'all' };
+    const id = Number(trimmed);
+    if (!Number.isFinite(id) || !Number.isInteger(id) || id <= 0) return { mode: 'invalid' };
+    return { mode: 'id', id };
+  };
+
+  const commitUserIdInput = () => {
+    const parsed = parseUserIdInput(userIdInput);
+    if (parsed.mode === 'all') {
+      setSendToAllCreators(true);
+      setSelectedUserIds([]);
+      setUserIdInput('');
+      return true;
+    }
+    if (parsed.mode === 'id' && parsed.id) {
+      setSendToAllCreators(false);
+      addSelectedUserId(parsed.id);
+      setUserIdInput('');
+      return true;
+    }
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // If user typed an ID and hit submit directly, consume it.
+      let nextSelectedIds = selectedUserIds;
+      let nextSendToAll = sendToAllCreators;
+      if (userIdInput.trim()) {
+        const parsed = parseUserIdInput(userIdInput);
+        if (parsed.mode === 'all') {
+          nextSendToAll = true;
+          nextSelectedIds = [];
+        } else if (parsed.mode === 'id' && parsed.id) {
+          nextSendToAll = false;
+          nextSelectedIds = nextSelectedIds.includes(parsed.id) ? nextSelectedIds : [...nextSelectedIds, parsed.id];
+        } else {
+          toast.error('Please enter a valid numeric creator id (or type "all")');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const result = await campaignsApi.create({
         title: formData.title,
         body: formData.body,
-        segment: sendToAllCreators ? 'all' : 'user',
-        ...(!sendToAllCreators && selectedUserIds.length > 0 ? { user_ids: selectedUserIds } : {}),
+        ...(!nextSendToAll && nextSelectedIds.length > 0 ? { targeted_ids: nextSelectedIds } : {}),
       });
       toast.success(`Notification queued for ${result.users_targeted} user(s)!`);
       router.push('/notification_list');
@@ -81,27 +125,16 @@ export default function NewCampaignPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.back()}
-            className="h-10 w-10"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h1 className="text-3xl font-bold tracking-tight">Create Notification</h1>
-            </div>
-            <p className="text-muted-foreground">
-              Design and launch a new notification campaign
-            </p>
-          </div>
-        </div>
+      <div className="text-sm">
+        <Link href="/notification_list" className="font-medium text-slate-800 hover:text-slate-950">
+          Dashboard
+        </Link>
+        <span className="mx-2 text-slate-500">{'>'}</span>
+        <Link href="/notification_list" className="font-medium text-slate-800 hover:text-slate-950">
+          Notification
+        </Link>
+        <span className="mx-2 text-slate-500">{'>'}</span>
+        <span className="font-medium text-slate-400">Create</span>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -109,8 +142,27 @@ export default function NewCampaignPage() {
           {/* Form Fields */}
           <div className="space-y-6">
             {/* Message Content */}
-            <Card className="border-2">
+            <Card className="border-2 py-0">
               <CardContent className="p-6 space-y-6">
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute left-0">
+                    <Button
+                      variant="outline"
+                      onClick={() => router.back()}
+                      className="h-9 rounded-full px-3"
+                      title="Back"
+                    >
+                      <i className="fa-solid fa-arrow-left mr-2 text-sm" aria-hidden="true" />
+                      Back
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <h1 className="text-3xl font-bold tracking-tight">Create Notification</h1>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-2 pb-2 border-b">
                   <Bell className="w-4 h-4 text-primary" />
                   <h3 className="font-semibold text-lg">Message Content</h3>
@@ -129,6 +181,14 @@ export default function NewCampaignPage() {
                           placeholder={isLoadingUsers ? 'Loading creators…' : 'Search creator by name / mobile / id (or choose all)'}
                           value={userIdInput}
                           onChange={(e) => setUserIdInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              if (!commitUserIdInput()) {
+                                toast.error('Please enter a valid numeric creator id (or type "all")');
+                              }
+                            }
+                          }}
                           className="h-11"
                         />
                         <datalist id="creator-ids">
@@ -147,21 +207,9 @@ export default function NewCampaignPage() {
                         variant="outline"
                         className="h-11 rounded-md"
                         onClick={() => {
-                          const trimmed = userIdInput.trim().toLowerCase();
-                          if (trimmed === 'all') {
-                            setSendToAllCreators(true);
-                            setSelectedUserIds([]);
-                            setUserIdInput('');
-                            return;
-                          }
-                          const id = Number(userIdInput);
-                          if (!Number.isFinite(id) || !Number.isInteger(id) || id <= 0) {
+                          if (!commitUserIdInput()) {
                             toast.error('Please enter a valid numeric creator id (or type "all")');
-                            return;
                           }
-                          setSendToAllCreators(false);
-                          addSelectedUserId(id);
-                          setUserIdInput('');
                         }}
                       >
                         Add

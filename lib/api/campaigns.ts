@@ -10,7 +10,9 @@ export const campaignsApi = {
     );
     const data = response.data.data;
     const campaigns = (data.notifications || []).map((item: any, index: number): Campaign => {
-      const notificationId = item.notification_id != null ? String(item.notification_id) : undefined;
+      const rawId = item.notification_id ?? item.notificationId ?? item.id;
+      const notificationId =
+        rawId != null && String(rawId).trim() !== '' ? String(rawId) : undefined;
       const sentAt: string | undefined = item.sent_date_time || item.first_sent_at;
       const targetedIds: number[] = Array.isArray(item.targeted_ids) ? item.targeted_ids : [];
 
