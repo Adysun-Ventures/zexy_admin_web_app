@@ -13,8 +13,8 @@ export interface User {
   is_active: boolean;
   is_deleted: boolean;
   has_completed_onboarding: boolean;
-  last_login_at: string | null;
-  created_at: string | null;
+  last_login_on: string | null;
+  created_on: string | null;
 }
 
 export interface UserDetail extends User {
