@@ -57,7 +57,7 @@ export function getDummyCreatorById(id: number): UserDetail | null {
 
   return {
     ...creator,
-    niche: null,
+    category: null,
     onboarding_step: creator.has_completed_onboarding ? 4 : 2,
     onboarding_completed_at: creator.has_completed_onboarding ? creator.created_at : null,
     terms_accepted_at: null,

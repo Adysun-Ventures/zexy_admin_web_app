@@ -57,7 +57,7 @@ export function getDummyFanById(id: number): UserDetail | null {
 
   return {
     ...fan,
-    niche: null,
+    category: null,
     onboarding_step: fan.has_completed_onboarding ? 4 : 2,
     onboarding_completed_at: fan.has_completed_onboarding ? fan.created_at : null,
     terms_accepted_at: null,

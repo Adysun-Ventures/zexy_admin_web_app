@@ -18,7 +18,7 @@ export interface User {
 }
 
 export interface UserDetail extends User {
-  niche: string | null;
+  category: string | null;
   onboarding_step: number;
   onboarding_completed_at: string | null;
   terms_accepted_at: string | null;
