@@ -157,8 +157,13 @@ export default function FanDetailPage() {
           </div>
 
           <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-xs text-muted-foreground">
-            <p>Created By Admin on {formatMetaDate(fan.created_at)}</p>
-            <p>Updated By Admin on {formatMetaDate(fan.last_login_at || fan.created_at)}</p>
+            <p>
+              Created By {fan.created_by_name || 'Admin'} on {formatMetaDate(fan.created_at)}
+            </p>
+            <p>
+              Updated By {fan.updated_by_name || fan.created_by_name || 'Admin'} on{' '}
+              {formatMetaDate(fan.last_login_at || fan.created_at)}
+            </p>
           </div>
         </CardContent>
       </Card>

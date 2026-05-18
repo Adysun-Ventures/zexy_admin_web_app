@@ -152,8 +152,13 @@ export default function CreatorDetailPage() {
           </div>
 
           <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-xs text-muted-foreground">
-            <p>Created By Admin on {formatMetaDate(creator.created_at)}</p>
-            <p>Updated By Admin on {formatMetaDate(creator.last_login_at || creator.created_at)}</p>
+            <p>
+              Created By {creator.created_by_name || 'Admin'} on {formatMetaDate(creator.created_at)}
+            </p>
+            <p>
+              Updated By {creator.updated_by_name || creator.created_by_name || 'Admin'} on{' '}
+              {formatMetaDate(creator.last_login_at || creator.created_at)}
+            </p>
           </div>
         </CardContent>
       </Card>
