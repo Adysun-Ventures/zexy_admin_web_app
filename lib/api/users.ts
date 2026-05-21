@@ -81,7 +81,7 @@ export interface FanCreatePayload {
   role: 'creator' | 'fan' | 'admin';
   is_active: boolean;
   has_completed_onboarding: boolean;
-  niche: string;
+  category: string;
   gender: string;
   city: string;
   state: string;
@@ -108,7 +108,7 @@ export interface CreatorCreatePayload {
   role: 'creator' | 'fan' | 'admin';
   is_active: boolean;
   has_completed_onboarding: boolean;
-  niche: string;
+  category: string;
   gender: string;
   date_of_birth: string;
   city: string;
@@ -121,7 +121,7 @@ export interface CreatorUpdatePayload {
   name: string;
   username: string;
   avatar: string;
-  niche: string;
+  category: string;
   is_active: boolean;
   role: 'creator' | 'fan' | 'admin';
   gender: string;

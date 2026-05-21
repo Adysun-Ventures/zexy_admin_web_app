@@ -33,7 +33,7 @@ export default function EditCreatorPage() {
   const [formData, setFormData] = useState<CreatorFormData>(emptyForm);
   const [creatorName, setCreatorName] = useState('');
   const [avatar, setAvatar] = useState('');
-  const [niche, setNiche] = useState('');
+  const [category, setCategory] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [role, setRole] = useState<'creator' | 'fan' | 'admin'>('creator');
 
@@ -47,7 +47,7 @@ export default function EditCreatorPage() {
       const creator = await usersApi.getCreatorDetail(id);
       setCreatorName(creator.name || '');
       setAvatar(creator.avatar || '');
-      setNiche(creator.niche || '');
+      setCategory(creator.category || '');
       setIsActive(creator.is_active);
       setRole(creator.role);
       setFormData({
@@ -69,7 +69,7 @@ export default function EditCreatorPage() {
       }
       setCreatorName(fallbackCreator.name || '');
       setAvatar(fallbackCreator.avatar || '');
-      setNiche(fallbackCreator.niche || '');
+      setCategory(fallbackCreator.category || '');
       setIsActive(fallbackCreator.is_active);
       setRole(fallbackCreator.role);
       setFormData({
@@ -110,7 +110,7 @@ export default function EditCreatorPage() {
         username: formData.username,
         name: formData.name,
         avatar,
-        niche,
+        category,
         is_active: isActive,
         role,
         gender: formData.gender,

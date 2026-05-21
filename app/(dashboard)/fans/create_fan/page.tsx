@@ -27,7 +27,7 @@ export default function CreateFanPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FanFormData>(initialForm);
-  const [niche, setNiche] = useState('fitness');
+  const [category, setCategory] = useState('fitness');
   const avatar = 'https://randomuser.me/api/portraits/men/51.jpg';
 
   const handleChange = (field: keyof FanFormData, value: string) => {
@@ -45,7 +45,7 @@ export default function CreateFanPage() {
         role: 'fan',
         is_active: true,
         has_completed_onboarding: true,
-        niche: niche.trim() || 'fitness',
+        category: category.trim() || 'fitness',
         gender: formData.gender,
         date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
         city: formData.city,
@@ -208,11 +208,11 @@ export default function CreateFanPage() {
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
                 <div className="space-y-1.5 md:col-span-3">
-                  <Label htmlFor="niche">Niche</Label>
+                  <Label htmlFor="category">Category</Label>
                   <Input
-                    id="niche"
-                    value={niche}
-                    onChange={(e) => setNiche(e.target.value)}
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
                     placeholder="fitness"
                     className="h-9"
                   />
